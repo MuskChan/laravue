@@ -205,12 +205,25 @@ export const asyncRoutes = [
     ],
   },
   {
-    path: 'external-link',
+    path: '/foo',
     component: Layout,
+    redirect: '/foo/index',
+    name: 'foo',
+    meta: {
+      title: 'foo',
+      icon: 'star',
+    },
     children: [
       {
-        path: 'https://github.com/tuandm/laravue',
-        meta: { title: 'externalLink', icon: 'link' },
+        path: 'index',
+        name: 'foo',
+        component: () => import('@/views/foo/Foo.vue'),
+        meta: { title: 'foo' }, // Show `foo` on the sidebar
+      },
+      {
+        path: 'bar', // When clicking this submenu, it will redirect to /#/foo/bar
+        name: 'bar',
+        meta: { title: 'bar' }, // bar submenu
       },
     ],
   },
