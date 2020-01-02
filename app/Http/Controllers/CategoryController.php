@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Laravue\Models\Category;
 use Illuminate\Http\Request;
 use App\Http\Resources\CategoryResource;
+use Illuminate\Support\Facades\Validator;
 
 class CategoryController extends Controller
 {

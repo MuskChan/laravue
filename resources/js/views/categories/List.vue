@@ -29,6 +29,17 @@
           <span>{{ scope.row.description }}</span>
         </template>
       </el-table-column>
+
+      <el-table-column align="center" label="Actions" width="350">
+        <template slot-scope="scope">
+          <el-button type="primary" size="small" icon="el-icon-edit" @click="handleEditForm(scope.row.id, scope.row.name);">
+            Edit
+          </el-button>
+          <el-button type="danger" size="small" icon="el-icon-delete" @click="handleDelete(scope.row.id, scope.row.name);">
+            Delete
+          </el-button>
+        </template>
+      </el-table-column>
     </el-table>
     <el-dialog :title="'Create new Category'" :visible.sync="categoryFormVisible">
       <div class="form-container">
@@ -63,6 +74,7 @@
       return {
         list: [],
         categoryFormVisible: false,
+        formTitle: '',
         currentCategory: {},
       };
     },
@@ -75,6 +87,24 @@
         this.list = data;
       },
       handleSubmit() {
+        categoryResource
+          .store(this.currentCategory)
+          .then(response => {
+            this.$message({
+              message: 'New category ' + this.currentCategory.name + ' has been created successfully.',
+              type: 'success',
+              duration: 5 * 1000,
+            });
+            this.currentCategory = {
+              name: '',
+              description: '',
+            };
+            this.categoryFormVisible = false;
+            this.getList();
+          })
+          .catch(error => {
+            console.log(error);
+          });
       },
       handleCreate() {
         this.categoryFormVisible = true;
@@ -82,6 +112,28 @@
           name: '',
           description: '',
         };
+      },
+      handleDelete(id, name) {
+        this.$confirm('This will permanently delete category ' + name + '. Continue?', 'Warning', {
+          confirmButtonText: 'OK',
+          cancelButtonText: 'Cancel',
+          type: 'warning',
+        }).then(() => {
+          categoryResource.destroy(id).then(response => {
+            this.$message({
+              type: 'success',
+              message: 'Delete completed',
+            });
+            this.getList();
+          }).catch(error => {
+            console.log(error);
+          });
+        }).catch(() => {
+          this.$message({
+            type: 'info',
+            message: 'Delete canceled',
+          });
+        });
       },
     },
   };
