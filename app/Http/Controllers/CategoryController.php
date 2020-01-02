@@ -36,7 +36,25 @@ class CategoryController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validator = Validator::make(
+            $request->all(),
+            [
+                'name' => ['required']
+            ]
+        );
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 403);
+        } else {
+            $params = $request->all();
+            $category = Category::create([
+                'name' => $params['name'],
+                'code' => strtolower($params['name']) . time(), // Just to make sure this value is unique
+                'description' => $params['description'],
+            ]);
+
+            return new CategoryResource($category);
+        }
     }
 
     /**
@@ -70,7 +88,27 @@ class CategoryController extends Controller
      */
     public function update(Request $request, Category $category)
     {
-        //
+        if ($category === null) {
+            return response()->json(['error' => 'Category not found'], 404);
+        }
+
+        $validator = Validator::make(
+            $request->all(),
+            [
+                'name' => ['required']
+            ]
+        );
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 403);
+        } else {
+            $params = $request->all();
+            $category->name = $params['name'];
+            $category->description = $params['description'];
+            $category->save();
+        }
+
+        return new CategoryResource($category);
     }
 
     /**
@@ -81,6 +119,12 @@ class CategoryController extends Controller
      */
     public function destroy(Category $category)
     {
-        //
+        try {
+            $category->delete();
+        } catch (\Exception $ex) {
+            response()->json(['error' => $ex->getMessage()], 403);
+        }
+
+        return response()->json(null, 204);
     }
 }
